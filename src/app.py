@@ -21,9 +21,10 @@ posts = {
       "title": "Cat loaf",
       "link": "https://i.imgur.com/TJ46wX4.jpg",
       "username": "alicia98"
-    },
-    3: {}
+    }
 }
+
+post_id_counter = 3
 
 @app.route("/")
 def hello_world():
@@ -33,15 +34,30 @@ def hello_world():
 # your routes here
 
 # get all posts
-@app.route("/api/posts/")
+@app.route("/api/posts/", methods=["GET"])
 def get_all_posts():
     """
     Get all posts from the database
     """
     response = {"posts": list(posts.values())}
-    return json.dumps(response)
+    return json.dumps(response), 200
 
 # create a post
+@app.route("/api/posts/", methods=["POST"])
+def create_post():
+    """
+    Endpoint to create a post
+    """
+    global post_id_counter
+    body = json.loads(request.data)
+    title = body["title"]
+    link = body["link"]
+    username = body["username"]
+    post = {"id": post_id_counter, "upvotes": 0, "title": title, "link": link, "username": username}
+    posts[post_id_counter] = post
+    post_id_counter += 1
+    return json.dumps(post), 201
+
 
 # get a specific post by id
 
