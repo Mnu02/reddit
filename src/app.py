@@ -142,7 +142,25 @@ def post_comment_for_specific_post(post_id):
     
 
 # edit a comment for a specific post
-
+@app.route("/api/posts/<int:post_id>/comments/<int:comment_id>/", methods=["PUT"])
+def edit_comment_for_specific_post(post_id, comment_id):
+    post = posts.get(post_id)
+    if post is None:
+      return json.dumps({"error": "Post doesn't exist bro"}), 404
+    
+    comments = comments_by_post.get(post_id, [])
+    comment = None
+    for c in comments:
+        if c["id"] == comment_id:
+            comment = c
+    
+    if comment is None:
+        return json.dumps({"error": "Comment doesn't exist bro"}), 404
+    body = json.loads(request.data)
+    if not body or "text" not in body:
+      return jsonify({"error": "Missing 'text' in request body"}), 400
+    comment["text"] = body["text"]
+    return json.dumps(comment), 201
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
