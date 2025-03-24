@@ -71,6 +71,13 @@ def get_post_by_id(id):
     return json.dumps(post), 200
 
 # delete a specific post by id
+@app.route("/api/posts/<int:id>/", methods=["DELETE"])
+def delete_post_by_id(id):
+    post = posts.get(id)
+    if post is None:
+      return json.dumps({"error": "Post not found"}), 404
+    del posts[id]
+    return json.dumps(post), 200
 
 # get comments for a specific post
 
