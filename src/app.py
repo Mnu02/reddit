@@ -32,6 +32,15 @@ def hello_world():
 
 # your routes here
 
+# get all posts
+@app.route("/api/posts/")
+def get_all_posts():
+    """
+    Get all posts from the database
+    """
+    response = {"posts": list(posts.values())}
+    return json.dumps(response)
+
 # create a post
 
 # get a specific post by id
