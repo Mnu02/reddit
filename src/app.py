@@ -9,14 +9,14 @@ app = Flask(__name__)
 # db
 posts = {
     1: {
-      "id": 0,
+      "id": 1,
       "upvotes": 1,
       "title": "My cat is the cutest!",
       "link": "https://i.imgur.com/jseZqNK.jpg",
       "username": "alicia98"
     },
     2: {
-      "id": 1,
+      "id": 2,
       "upvotes": 3,
       "title": "Cat loaf",
       "link": "https://i.imgur.com/TJ46wX4.jpg",
@@ -60,6 +60,15 @@ def create_post():
 
 
 # get a specific post by id
+@app.route("/api/posts/<int:id>/", methods=["GET"])
+def get_post_by_id(id):
+    """
+    Endpoint to get a post by its id
+    """
+    post = posts.get(id)
+    if post is None:
+        return json.dumps({"error": "Post not found"}), 404
+    return json.dumps(post), 200
 
 # delete a specific post by id
 
