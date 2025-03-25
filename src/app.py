@@ -79,8 +79,9 @@ def create_post():
     title = body["title"]
     link = body["link"]
     username = body["username"]
-    post = {"id": post_id_counter, "upvotes": 0, "title": title, "link": link, "username": username}
+    post = {"id": post_id_counter, "upvotes": 1, "title": title, "link": link, "username": username}
     posts[post_id_counter] = post
+    comments_by_post[post_id_counter] = []
     post_id_counter += 1
     return json.dumps(post), 201
 
@@ -135,32 +136,35 @@ def post_comment_for_specific_post(post_id):
     body = json.loads(request.data)
     text = body["text"]
     username = body["username"]
-    comment = {"id": comment_id_counter, "upvotes": 0, "text": text, "username": username}
+    comment = {"id": comment_id_counter, "upvotes": 1, "text": text, "username": username}
     comments_by_post[post_id].append(comment)
     comment_id_counter += 1
-    return json.dumps(comment), 200
+    return json.dumps(comment), 201
     
 
 # edit a comment for a specific post
-@app.route("/api/posts/<int:post_id>/comments/<int:comment_id>/", methods=["PUT"])
+@app.route("/api/posts/<int:post_id>/comments/<int:comment_id>/", methods=["POST", "PUT"])
 def edit_comment_for_specific_post(post_id, comment_id):
     post = posts.get(post_id)
     if post is None:
-      return json.dumps({"error": "Post doesn't exist bro"}), 404
-    
+        return jsonify({"error": "Post not found"}), 404
+
     comments = comments_by_post.get(post_id, [])
-    comment = None
-    for c in comments:
-        if c["id"] == comment_id:
-            comment = c
-    
+    comment = next((c for c in comments if c["id"] == comment_id), None)
+
     if comment is None:
-        return json.dumps({"error": "Comment doesn't exist bro"}), 404
-    body = json.loads(request.data)
+        return jsonify({"error": "Comment not found"}), 404
+
+    body = request.get_json(force=True)
     if not body or "text" not in body:
-      return jsonify({"error": "Missing 'text' in request body"}), 400
+        print("HERE")
+        return jsonify({"error": "Missing 'text' in request body"}), 400
+
     comment["text"] = body["text"]
-    return json.dumps(comment), 201
+    print(f"Editing comment {comment_id} on post {post_id}. Found comment: {comment}")
+
+    return jsonify(comment), 200  
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
